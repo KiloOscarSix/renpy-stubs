@@ -1,0 +1,15 @@
+# Renpy Source Code
+test/
+__pycache__/
+
+*.gif
+*.png
+*.ogg
+*.ttf
+*.pxd
+*.pxi
+*.pyx
+*.txt
+*.js
+*.rpyc
+*.rpymc
