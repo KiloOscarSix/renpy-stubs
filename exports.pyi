@@ -29,7 +29,7 @@ from __future__ import (
     print_function,
     unicode_literals,
 )
-from typing import Callable, Optional
+from typing import Any, Callable, Optional
 from renpy.compat import (
     PY2,
     basestring,
@@ -58,7 +58,7 @@ import renpy
 
 from renpy.pyanalysis import const, pure, not_const
 
-def renpy_pure[T](fn: T) -> T: ...
+def renpy_pure[T: (Callable[..., Any])](fn: T) -> T: ...
 
 import pygame_sdl2
 
