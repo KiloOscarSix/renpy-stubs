@@ -29,7 +29,7 @@ from __future__ import (
     print_function,
     unicode_literals,
 )
-from typing import Callable  # type: ignore
+from typing import Callable, Optional
 from renpy.compat import (
     PY2,
     basestring,
@@ -2354,22 +2354,7 @@ def get_game_runtime():
     return renpy.game.contexts[0].runtime
 
 @renpy_pure
-def loadable(filename, directory=None):
-    """
-    :doc: file
-
-    Returns True if the given filename is loadable, meaning that it
-    can be loaded from the disk or from inside an archive. Returns
-    False if this is not the case.
-
-    `directory`
-        If not None, a directory to search in if the file is not found
-        in the game directory. This will be prepended to filename, and
-        the search tried again.
-    """
-
-    return renpy.loader.loadable(filename, directory=directory)
-
+def loadable(filename: str, directory: Optional[str] = None) -> bool: ...
 @renpy_pure
 def exists(filename):
     """
