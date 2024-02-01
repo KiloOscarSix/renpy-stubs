@@ -2392,19 +2392,7 @@ def restart_interaction():
     except Exception:
         pass
 
-def context():
-    """
-    :doc: context
-
-    Returns an object that is unique to the current context. The object
-    is copied when entering a new context, but changes to the copy do
-    not change the original.
-
-    The object is saved and participates in rollback.
-    """
-
-    return renpy.game.context().info
-
+def context() -> renpy.revertable.RevertableObject: ...
 def context_nesting_level():
     """
     :doc: context

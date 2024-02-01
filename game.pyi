@@ -1,31 +1,3 @@
-# Copyright 2004-2024 Tom Rothamel <pytom@bishoujo.us>
-#
-# Permission is hereby granted, free of charge, to any person
-# obtaining a copy of this software and associated documentation files
-# (the "Software"), to deal in the Software without restriction,
-# including without limitation the rights to use, copy, modify, merge,
-# publish, distribute, sublicense, and/or sell copies of the Software,
-# and to permit persons to whom the Software is furnished to do so,
-# subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be
-# included in all copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-# LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-# OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-# WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-# This module is intended to be used as a singleton object.
-# It's purpose is to store in one global all of the data that would
-# be to annoying to lug around otherwise.
-
-from __future__ import division, absolute_import, with_statement, print_function, unicode_literals
-from renpy.compat import PY2, basestring, bchr, bord, chr, open, pystr, range, round, str, tobytes, unicode # *
-
 from typing import Optional, Any
 
 import renpy
@@ -35,36 +7,36 @@ basepath = None
 
 # A list of paths that we search to load things. This is searched for
 # everything that can be loaded, before archives are used.
-searchpath = [ ]
+searchpath = []
 
 # The options that were read off the command line.
-args = None # type: Any
+args = None  # type: Any
 
 # The game's script.
-script = None # type: Optional[renpy.script.Script]
+script = None  # type: Optional[renpy.script.Script]
 
 # A stack of execution contexts.
-contexts = [ ]
+contexts: list[renpy.execution.Context] = []
 
 # The interface that the game uses to interact with the user.
-interface = None # type: Optional[renpy.display.core.Interface]
+interface = None  # type: Optional[renpy.display.core.Interface]
 
 # Are we inside lint?
 lint = False
 
 # The RollbackLog that keeps track of changes to the game state
 # and to the store.
-log = None # type: renpy.rollback.RollbackLog|None
+log = None  # type: renpy.rollback.RollbackLog|None
 
 # Some useful additional information about program execution that
 # can be added to the exception.
-exception_info = ''
+exception_info = ""
 
 # Used to store style information.
 style = None
 
 # The set of statements we've seen in this session.
-seen_session = { }
+seen_session = {}
 
 # The number of entries in persistent._seen_translates that are also in
 # the current game.
@@ -77,7 +49,7 @@ new_translates_count = 0
 after_rollback = False
 
 # Code that's run after the init code.
-post_init = [ ]
+post_init = []
 
 # Should we attempt to run in a mode that uses less memory?
 less_memory = False
@@ -93,17 +65,16 @@ less_mouse = False
 less_imagedissolve = False
 
 # The persistent data that's kept from session to session
-persistent = None # type: Any
+persistent = None  # type: Any
 
 # The current preferences.
-preferences = None # type: Any
+preferences = None  # type: Any
 
 # Current id of the AST node in script initcode
 initcode_ast_id = 0
 
 # The build_info.
-build_info = { "info" : { } }
-
+build_info = {"info": {}}
 
 class ExceptionInfo(object):
     """
@@ -118,16 +89,13 @@ class ExceptionInfo(object):
     def __init__(self, s, args):
         self.s = s
         self.args = args
-
     def __enter__(self):
         return
-
     def __exit__(self, exc_type, exc_val, exc_tb):
         if exc_type:
             renpy.game.exception_info = self.s % self.args
 
         return False
-
 
 class RestartContext(Exception):
     """
@@ -135,13 +103,11 @@ class RestartContext(Exception):
     in the restarted context.
     """
 
-
 class RestartTopContext(Exception):
     """
     Restarts the top context. If `label` is given, calls that label
     in the restarted context.
     """
-
 
 class FullRestartException(Exception):
     """
@@ -149,16 +115,14 @@ class FullRestartException(Exception):
     destroying the store and config and so on.
     """
 
-    def __init__(self, reason="end_game"): # W0231
+    def __init__(self, reason="end_game"):  # W0231
         self.reason = reason
-
 
 class UtterRestartException(Exception):
     """
     An exception of this type forces an even harder restart, causing
     Ren'Py and the script to be reloaded.
     """
-
 
 class QuitException(Exception):
     """
@@ -178,7 +142,6 @@ class QuitException(Exception):
         self.relaunch = relaunch
         self.status = status
 
-
 class JumpException(Exception):
     """
     This should be raised with a label as the only argument. This causes
@@ -186,13 +149,11 @@ class JumpException(Exception):
     to the named label.
     """
 
-
 class JumpOutException(Exception):
     """
     This should be raised with a label as the only argument. This exits
     the current context, and then raises a JumpException.
     """
-
 
 class CallException(Exception):
     """
@@ -209,10 +170,8 @@ class CallException(Exception):
         self.args = args
         self.kwargs = kwargs
         self.from_current = from_current
-
     def __reduce__(self):
         return (CallException, (self.label, self.args, self.kwargs, self.from_current))
-
 
 class EndReplay(Exception):
     """
@@ -220,13 +179,11 @@ class EndReplay(Exception):
     call_replay).
     """
 
-
 class ParseErrorException(Exception):
     """
     This is raised when a parse error occurs, after it has been
     reported to the user.
     """
-
 
 # A tuple of exceptions that should not be caught by the
 # exception reporting mechanism.
@@ -242,19 +199,10 @@ CONTROL_EXCEPTIONS = (
     EndReplay,
     ParseErrorException,
     KeyboardInterrupt,
-    )
+)
 
-
-def context(index=-1):
-    """
-    Return the current execution context, or the context at the
-    given index if one is specified.
-    """
-
-    return contexts[index]
-
-
-def invoke_in_new_context(callable, *args, **kwargs): # @ReservedAssignment
+def context(index: int = -1) -> renpy.execution.Context: ...
+def invoke_in_new_context(callable, *args, **kwargs):  # @ReservedAssignment
     """
     :doc: context
 
@@ -289,7 +237,6 @@ def invoke_in_new_context(callable, *args, **kwargs): # @ReservedAssignment
         renpy.display.interface.enter_context()
 
     try:
-
         return callable(*args, **kwargs)
 
     except renpy.game.RestartContext:
@@ -301,13 +248,11 @@ def invoke_in_new_context(callable, *args, **kwargs): # @ReservedAssignment
         raise
 
     except renpy.game.JumpOutException as e:
-
         contexts[-2].force_checkpoint = True
         contexts[-2].abnormal = True
         raise renpy.game.JumpException(e.args[0])
 
     finally:
-
         if not restart_context:
             context.pop_all_dynamic()
 
@@ -316,7 +261,6 @@ def invoke_in_new_context(callable, *args, **kwargs): # @ReservedAssignment
 
         if interface and interface.restart_interaction and contexts:
             contexts[-1].scene_lists.focused = None
-
 
 def call_in_new_context(label, *args, **kwargs):
     """
@@ -353,7 +297,6 @@ def call_in_new_context(label, *args, **kwargs):
         renpy.store._kwargs = None
 
     try:
-
         context.goto_label(label)
         return renpy.execution.run_context(False)
 
@@ -363,13 +306,11 @@ def call_in_new_context(label, *args, **kwargs):
         raise renpy.game.JumpException(e.args[0])
 
     finally:
-
         contexts.pop()
         contexts[-1].do_deferred_rollback()
 
         if interface and interface.restart_interaction and contexts:
             contexts[-1].scene_lists.focused = None
-
 
 def call_replay(label, scope={}):
     """
@@ -409,7 +350,6 @@ def call_replay(label, scope={}):
     renpy.store._in_replay = label
 
     try:
-
         context.goto_label("_start_replay")
         renpy.execution.run_context(False)
 
@@ -417,7 +357,6 @@ def call_replay(label, scope={}):
         pass
 
     finally:
-
         context.pop_all_dynamic()
 
         contexts.pop()
@@ -431,7 +370,6 @@ def call_replay(label, scope={}):
 
     if renpy.config.after_replay_callback:
         renpy.config.after_replay_callback()
-
 
 # Type information.
 if False:

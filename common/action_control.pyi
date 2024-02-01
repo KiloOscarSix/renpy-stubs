@@ -5,44 +5,11 @@ from renpy.ui import Action
 import renpy.exports as renpy
 
 class NullAction(Action, DictEquality):
-    """
-    :doc: control_action
+    def __call__(self) -> None: ...
 
-    Does nothing.
-
-    This can be used to make a button responsive to hover/unhover events,
-    without actually doing anything.
-    """
-
-    def __call__(self):
-        return
-
-@renpy.pure
-class Return(Action, DictEquality):
-    """
-    :doc: control_action
-
-    Causes the current interaction to return the supplied non-None value.
-    This is often used with menus and imagemaps, to
-    select what the return value of the interaction is. If the screen
-    was called using the ``call screen`` statement, the return value
-    is placed in the `_return` variable.
-
-    When in a menu, this returns from the menu. (The value should be
-    None in this case.)
-    """
-
-    def __init__(self, value=None):
-        self.value = value
-    def __call__(self):
-        if self.value is None:
-            if main_menu:
-                ShowMenu("main_menu")()
-            else:
-                return True
-
-        else:
-            return self.value
+class Return[T](Action, DictEquality):
+    def __init__(self, value: T = None) -> None: ...
+    def __call__(self) -> T | None: ...
 
 @renpy.pure
 class Jump(Action, DictEquality):

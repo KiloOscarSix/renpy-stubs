@@ -33,7 +33,7 @@ from __future__ import (
     print_function,
     unicode_literals,
 )
-from typing import Optional
+from typing import Any, Optional
 from renpy.compat import (
     PY2,
     basestring,
@@ -70,7 +70,7 @@ class Action(renpy.object.Object):
     def get_tooltip(self) -> Optional[str]: ...
     def periodic(self, st: int) -> Optional[int]: ...
     def predict(self) -> None: ...
-    def __call__(self) -> None: ...
+    def __call__(self) -> Any: ...
 
 class BarValue(renpy.object.Object):
     """
