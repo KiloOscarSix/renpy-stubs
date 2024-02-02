@@ -1996,20 +1996,7 @@ def toggle_music():
     """
 
 @renpy_pure
-def has_label(name):
-    """
-    :doc: label
-
-    Returns true if `name` is a valid label in the program, or false
-    otherwise.
-
-    `name`
-        Should be a string to check for the existence of a label. It can
-        also be an opaque tuple giving the name of a non-label statement.
-    """
-
-    return renpy.game.script.has_label(name)
-
+def has_label(name: str) -> bool: ...
 @renpy_pure
 def get_all_labels():
     """
