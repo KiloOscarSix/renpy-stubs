@@ -1427,6 +1427,9 @@ screens_never_cancel_hide = True
 # A list of transforms that are applied to entire layers.
 layer_transforms = {}
 
+# Should steam be enabled?
+enable_steam: bool
+
 del os
 del collections
 
