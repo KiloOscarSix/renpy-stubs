@@ -103,7 +103,7 @@ from renpy.display.image import (
     check_image_attributes,
     get_ordered_image_attributes,
 )
-from renpy.display.image import get_registered_image
+from renpy.display.image import get_registered_image as get_registered_image
 
 from renpy.display.im import load_surface, load_image, load_rgba
 
@@ -3170,12 +3170,15 @@ class placement(renpy.revertable.RevertableObject):
         self.xoffset = p[4]
         self.yoffset = p[5]
         self.subpixel = p[6]
+
     @property
     def pos(self):
         return self.xpos, self.ypos
+
     @property
     def anchor(self):
         return self.xanchor, self.yanchor
+
     @property
     def offset(self):
         return self.xoffset, self.yoffset
@@ -4350,6 +4353,7 @@ class LastSay:
         self.what = what
         self.args = args
         self.kwargs = kwargs
+
     @property
     def who(self):
         return eval_who(self._who)

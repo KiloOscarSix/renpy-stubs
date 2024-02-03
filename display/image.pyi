@@ -23,36 +23,12 @@
 # Most of the guts of this file have been moved into im.py, with only some
 # of the stuff thar uses images remaining.
 
-from __future__ import (
-    division,
-    absolute_import,
-    with_statement,
-    print_function,
-    unicode_literals,
-)
-from renpy.compat import (
-    PY2,
-    basestring,
-    bchr,
-    bord,
-    chr,
-    open,
-    pystr,
-    range,
-    round,
-    str,
-    tobytes,
-    unicode,
-)  # *
-
-import renpy
-from renpy.display.render import render, Render
-
-import collections
+from typing import Union, Optional
+from renpy.display.im import Image
 
 # A map from image name to the displayable object corresponding to that
 # image.
-images = {}
+images: dict[str, Image]
 
 # A map from image tag to lists of possible attributes for images with that
 # tag.
@@ -259,19 +235,7 @@ def register_image(name, d):
     image_names.append(" ".join(name))
 
 def image_exists(name: str, exact: bool = False) -> bool: ...
-def get_registered_image(name):
-    """
-    :doc: image_func
-
-    If an image with the same name has been :ref:`registered <defining-images>`,
-    returns it. Otherwise, returns None.
-    """
-
-    if not isinstance(name, tuple):
-        name = tuple(name.split())
-
-    return images.get(name)
-
+def get_registered_image(name: Union[str, tuple[str, ...]]) -> Optional[Image]: ...
 def wrap_render(child, w, h, st, at):
     rend = render(child, w, h, st, at)
     rv = Render(rend.width, rend.height)
@@ -297,6 +261,7 @@ class ImageReference(renpy.display.displayable.Displayable):
         if version < 1:
             if isinstance(self.param_target, renpy.display.transform.Transform):
                 self.old_transform = self.param_target
+
     def __init__(self, name, **properties):
         """
         @param name: A tuple of strings, the name of the image. Or else
@@ -307,10 +272,13 @@ class ImageReference(renpy.display.displayable.Displayable):
 
         self.name = name
         self.target = None  # type: renpy.display.displayable.Displayable|None
+
     def _repr_info(self):
         return repr(self.name)
+
     def __hash__(self):
         return hash(self.name)
+
     def __eq__(self, o):
         if self is o:
             return True
@@ -322,11 +290,13 @@ class ImageReference(renpy.display.displayable.Displayable):
             return False
 
         return True
+
     def _target(self):
         if self.target is None:
             self.find_target()
 
         return self.target._target()
+
     def find_target(self):
         name = self.name
 
@@ -409,12 +379,14 @@ class ImageReference(renpy.display.displayable.Displayable):
         rv.find_target()
 
         return rv
+
     def _unique(self):
         if self.target is None:
             self.find_target()
 
         self.target._unique()
         self._duplicatable = False
+
     def _in_current_store(self):
         if self.target is None:
             self.find_target()
@@ -427,31 +399,37 @@ class ImageReference(renpy.display.displayable.Displayable):
         rv = self._copy()
         rv.target = target
         return rv
+
     def _handles_event(self, event):
         if self.target is None:
             self.find_target()
 
         return self.target._handles_event(event)
+
     def _hide(self, st, at, kind):
         if self.target is None:
             self.find_target()
 
         return self.target._hide(st, at, kind)
+
     def set_transform_event(self, event):
         if self.target is None:
             self.find_target()
 
         return self.target.set_transform_event(event)
+
     def event(self, ev, x, y, st):
         if self.target is None:
             self.find_target()
 
         return self.target.event(ev, x, y, st)
+
     def render(self, width, height, st, at):
         if self.target is None:
             self.find_target()
 
         return wrap_render(self.target, width, height, st, at)
+
     def get_placement(self):
         if self.target is None:
             self.find_target()
@@ -482,6 +460,7 @@ class ImageReference(renpy.display.displayable.Displayable):
             yanchor = self.style.yanchor
 
         return xpos, ypos, xanchor, yanchor, xoffset, yoffset, subpixel
+
     def visit(self):
         if self.target is None:
             self.find_target()
@@ -542,10 +521,13 @@ class DynamicImage(renpy.display.displayable.Displayable):
             self._uses_scope = False
         else:
             self.find_target(scope)
+
     def _scope(self, scope, update):
         return self.find_target(scope, update)
+
     def _repr_info(self):
         return repr(self.name)
+
     def __hash__(self):
         if self.hash_name is None:
             if isinstance(self.name, list):
@@ -554,6 +536,7 @@ class DynamicImage(renpy.display.displayable.Displayable):
                 self.hash_name = self.name
 
         return hash(self.hash_name)
+
     def __eq__(self, o):
         if self is o:
             return True
@@ -568,17 +551,20 @@ class DynamicImage(renpy.display.displayable.Displayable):
             return False
 
         return True
+
     def _target(self):
         if self.target:
             return self.target._target()
         else:
             return self
+
     def set_style_prefix(self, prefix, root):
         if (prefix != self.style.prefix) and self._duplicatable:
             self.target = None
             self.raw_target = None
 
         super(DynamicImage, self).set_style_prefix(prefix, root)
+
     def find_target(self, scope=None, update=True):
         if self.locked and (self.target is not None):
             return
@@ -671,10 +657,12 @@ class DynamicImage(renpy.display.displayable.Displayable):
         # This does not set _duplicatable, since it should always remain the
         # same.
         return rv
+
     def _unique(self):
         if self.target is not None:
             self.target._unique()
             self._duplicatable = False
+
     def _in_current_store(self):
         rv = self._copy()
 
@@ -683,41 +671,49 @@ class DynamicImage(renpy.display.displayable.Displayable):
 
         rv.locked = True
         return rv
+
     def _handles_event(self, event):
         if self.target is None:
             self.find_target()
 
         return self.target._handles_event(event)
+
     def _hide(self, st, at, kind):
         if self.target is None:
             self.find_target()
 
         return self.target._hide(st, at, kind)
+
     def set_transform_event(self, event):
         if self.target is None:
             self.find_target()
 
         return self.target.set_transform_event(event)
+
     def event(self, ev, x, y, st):
         if self.target is None:
             self.find_target()
 
         return self.target.event(ev, x, y, st)
+
     def render(self, width, height, st, at):
         if self.target is None:
             self.find_target()
 
         return wrap_render(self.target, width, height, st, at)
+
     def get_placement(self):
         if self.target is None:
             self.find_target()
 
         return self.target.get_placement()
+
     def visit(self):
         if self.target is None:
             self.find_target()
 
         return [self.target]
+
     def per_interact(self):
         old_target = self.target
 
@@ -756,6 +752,7 @@ class ShownImageInfo(renpy.object.Object):
         else:
             self.attributes = old.attributes.copy()
             self.shown = old.shown.copy()
+
     def after_upgrade(self, version):
         if version < 2:
             self.attributes = {}
@@ -765,6 +762,7 @@ class ShownImageInfo(renpy.object.Object):
                 for tag in self.images[layer]:  # type: ignore
                     self.attributes[layer, tag] = self.images[layer][tag][1:]  # type: ignore
                     self.shown.add((layer, tag))
+
     def get_attributes(self, layer, tag, default=()):
         """
         Get the attributes associated the image with tag on the given
@@ -774,6 +772,7 @@ class ShownImageInfo(renpy.object.Object):
         layer = renpy.exports.default_layer(layer, tag)
 
         return self.attributes.get((layer, tag), default)
+
     def showing(self, layer, name, exact=False):
         """
         Returns true if name is the prefix of an image that is showing
@@ -801,12 +800,14 @@ class ShownImageInfo(renpy.object.Object):
                 return False
 
         return True
+
     def get_showing_tags(self, layer):
         """
         Returns the set of tags being shown on `layer`.
         """
 
         return {t for l, t in self.shown if l == layer}
+
     def get_hidden_tags(self, layer):
         """
         Returns the set of tags on layer that have attributes,
@@ -814,6 +815,7 @@ class ShownImageInfo(renpy.object.Object):
         """
 
         return {t for l, t in self.attributes if l == layer if (l, t) not in self.shown}
+
     def predict_scene(self, layer):
         """
         Predicts the scene statement being called on layer.
@@ -827,6 +829,7 @@ class ShownImageInfo(renpy.object.Object):
                 del self.attributes[l, t]
 
         self.shown = set((l, t) for l, t in self.shown if l != layer)
+
     def predict_show(self, layer, name, show=True):
         """
         Predicts name being shown on layer.
@@ -845,6 +848,7 @@ class ShownImageInfo(renpy.object.Object):
 
         if show:
             self.shown.add((layer, tag))
+
     def predict_hide(self, layer, name):
         tag = name[0]
 
@@ -854,6 +858,7 @@ class ShownImageInfo(renpy.object.Object):
             del self.attributes[layer, tag]
 
         self.shown.discard((layer, tag))
+
     def apply_attributes(self, layer, tag, name):
         """
         Given a layer, tag, and an image name (with attributes),
@@ -910,6 +915,7 @@ class ShownImageInfo(renpy.object.Object):
                 required.append(i)
 
         return self.choose_image(nametag, required, optional, name)
+
     def choose_image(self, tag, required, optional, exception_name):
         # The longest length of an image that matches.
         max_len = -1
@@ -981,7 +987,6 @@ renpy.display.core.ImagePredictInfo = ShownImageInfo  # type: ignore
 
 # Functions that have moved from this module to other modules,
 # that live here for the purpose of backward-compatibility.
-Image = renpy.display.im.image
 Solid = renpy.display.imagelike.Solid
 Frame = renpy.display.imagelike.Frame
 ImageButton = renpy.display.behavior.ImageButton
