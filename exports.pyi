@@ -96,7 +96,7 @@ from renpy.display.focus import (
 )
 from renpy.display.predict import screen as predict_screen
 
-from renpy.display.image import image_exists, image_exists as has_image, list_images
+from renpy.display.image import image_exists as image_exists, image_exists as has_image, list_images
 from renpy.display.image import (
     get_available_image_tags,
     get_available_image_attributes,
