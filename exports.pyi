@@ -29,7 +29,7 @@ from __future__ import (
     print_function,
     unicode_literals,
 )
-from typing import Any, Callable, Optional
+from typing import Any, Callable, NoReturn, Optional
 from renpy.compat import (
     PY2,
     basestring,
@@ -71,9 +71,9 @@ from renpy.display.behavior import map_event, queue_event, clear_keymap_cache
 from renpy.display.behavior import is_selected, is_sensitive
 
 from renpy.display.minigame import Minigame
+from renpy.display.screen import show_screen as show_screen
 from renpy.display.screen import (
     define_screen,
-    show_screen,
     hide_screen,
     use_screen,
     current_screen,
@@ -2853,17 +2853,7 @@ def push_error_handler(eh):
 def pop_error_handler():
     _error_handlers.pop()
 
-def error(msg):
-    """
-    :doc: lint
-
-    Reports `msg`, a string, as as error for the user. This is logged as a
-    parse or lint error when approprate, and otherwise it is raised as an
-    exception.
-    """
-
-    _error_handlers[-1](msg)
-
+def error(msg: str) -> NoReturn: ...
 def timeout(seconds):
     """
     :doc: udd_utility
