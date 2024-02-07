@@ -1,3 +1,5 @@
+from typing import Callable
+
 # Can we add more config variables?
 locked = False
 
@@ -1327,7 +1329,7 @@ viewport_inertia_time_constant = 0.325
 
 # A list of callbacks that are executed after the default statements have
 # run.
-after_default_callbacks = []
+after_default_callbacks: list[Callable[[], None]] = []
 
 # Are parsing errors raised when conflicting transform or style properties are
 # set simultaneously?
