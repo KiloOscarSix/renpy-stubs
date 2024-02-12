@@ -4750,7 +4750,6 @@ def fetch(
     timeout: int = 5,
     result: str = "bytes",
 ) -> Any: ...
-
 def can_fullscreen():
     """
     :doc: other
