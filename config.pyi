@@ -1373,7 +1373,7 @@ quadratic_volumes = False
 linear_fades = False
 
 # Classes that used to participate in rollback, but no longer do.
-ex_rollback_classes = []
+ex_rollback_classes: list[type] = []
 
 # Should we revert to the old behavior of box_reverse?
 simple_box_reverse = False
