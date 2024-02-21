@@ -55,6 +55,7 @@ import fnmatch
 import os
 
 import renpy
+from renpy.display.transform import Transform
 
 from renpy.pyanalysis import const, pure, not_const
 
@@ -676,156 +677,17 @@ def set_tag_attributes(name, layer=None):
         renpy.game.context().images.predict_show(layer, name, False)
 
 def show(
-    name,
-    at_list=[],
-    layer=None,
-    what=None,
-    zorder=None,
-    tag=None,
-    behind=[],
-    atl=None,
-    transient=False,
-    munge_name=True,
-):
-    """
-    :doc: se_images
-    :args: (name, at_list=[], layer=None, what=None, zorder=0, tag=None, behind=[], **kwargs)
-
-    Shows an image on a layer. This is the programmatic equivalent of the show
-    statement.
-
-    `name`
-        The name of the image to show, a string.
-
-    `at_list`
-        A list of transforms that are applied to the image.
-        The equivalent of the ``at`` property.
-
-    `layer`
-        A string, giving the name of the layer on which the image will be shown.
-        The equivalent of the ``onlayer`` property. If None, uses the default
-        layer associated with the tag.
-
-    `what`
-        If not None, this is a displayable that will be shown in lieu of
-        looking on the image. (This is the equivalent of the show expression
-        statement.) When a `what` parameter is given, `name` can be used to
-        associate a tag with the image.
-
-    `zorder`
-        An integer, the equivalent of the ``zorder`` property. If None, the
-        zorder is preserved if it exists, and is otherwise set to 0.
-
-    `tag`
-        A string, used to specify the image tag of the shown image. The
-        equivalent of the ``as`` property.
-
-    `behind`
-        A list of strings, giving image tags that this image is shown behind.
-        The equivalent of the ``behind`` property.
-
-    ::
-
-        show a
-        $ renpy.show("a")
-
-        show expression w
-        # anonymous show expression : no equivalent
-
-        show expression w as a
-        $ renpy.show("a", what=w)
-        $ renpy.show("y", what=w, tag="a") # in this case, name is ignored
-
-        show a at T, T2
-        $ renpy.show("a", at_list=(T, T2))
-
-        show a onlayer b behind c zorder d as e
-        $ renpy.show("a", layer="b", behind=["c"], zorder="d", tag="e")
-    """
-
-    default_transform = renpy.config.default_transform
-
-    if renpy.game.context().init_phase:
-        raise Exception("Show may not run while in init phase.")
-
-    if not isinstance(name, tuple):
-        name = tuple(name.split())
-
-    if zorder is None and not renpy.config.preserve_zorder:
-        zorder = 0
-
-    sls = scene_lists()
-    key = tag or name[0]
-
-    layer = default_layer(layer, key)
-
-    if renpy.config.sticky_positions:
-        if not at_list and key in sls.at_list[layer]:
-            at_list = sls.at_list[layer][key]
-
-    if not at_list:
-        tt = renpy.config.tag_transform.get(key, None)
-        if tt is not None:
-            at_list = renpy.easy.to_list(tt, copy=True)
-
-    if isinstance(what, renpy.display.displayable.Displayable):
-        if renpy.config.wrap_shown_transforms and isinstance(
-            what, renpy.display.motion.Transform
-        ):
-            base = img = renpy.display.image.ImageReference(
-                what, style="image_placement"
-            )
-
-            # Semi-principled, but mimics pre-6.99.6 behavior - if `what` is
-            # already a transform, do not apply the default transform to it.
-            default_transform = None
-
-        else:
-            base = img = what
-
-    else:
-        name, what = _find_image(layer, key, name, what)
-        base = img = renpy.display.image.ImageReference(what, style="image_placement")
-
-        if not base.find_target() and renpy.config.missing_show:
-            result = renpy.config.missing_show(name, what, layer)
-
-            if isinstance(result, renpy.display.displayable.Displayable):
-                base = img = result
-            elif result:
-                return
-
-    for i in at_list:
-        if isinstance(i, renpy.display.motion.Transform):
-            img = i(child=img)
-        else:
-            img = i(img)  # type: ignore
-
-        # Mark the newly created images unique.
-        img._unique()
-
-    # Update the list of images we have ever seen.
-    renpy.game.persistent._seen_images[tuple(str(i) for i in name)] = True
-
-    if tag and munge_name:
-        name = (tag,) + name[1:]
-
-    if renpy.config.missing_hide:
-        renpy.config.missing_hide(name, layer)
-
-    sls.add(
-        layer,
-        img,
-        key,
-        zorder,
-        behind,
-        at_list=at_list,
-        name=name,
-        atl=atl,
-        default_transform=default_transform,
-        transient=transient,
-    )
-
+    name: str,
+    at_list: list[Transform] = [],
+    layer: Optional[str] = None,
+    what: Optional[str] = None,
+    zorder: Optional[int] = None,
+    tag: Optional[str] = None,
+    behind: list[str] = [],
+    atl: Any = None,
+    transient: bool = False,
+    munge_name: bool = True,
+) -> None: ...
 def hide(name, layer=None):
     """
     :doc: se_images
@@ -857,42 +719,7 @@ def hide(name, layer=None):
     if renpy.config.missing_hide:
         renpy.config.missing_hide(name, layer)
 
-def scene(layer="master"):
-    """
-    :doc: se_images
-
-    Removes all displayables from `layer`. This is equivalent to the scene
-    statement, when the scene statement is not given an image to show.
-
-    A full scene statement is equivalent to a call to renpy.scene followed by a
-    call to :func:`renpy.show`. For example::
-
-        scene bg beach
-
-    is equivalent to::
-
-        $ renpy.scene()
-        $ renpy.show("bg beach")
-    """
-
-    if layer is None:
-        layer = "master"
-
-    if renpy.game.context().init_phase:
-        raise Exception("Scene may not run while in init phase.")
-
-    sls = scene_lists()
-    sls.clear(layer)
-
-    if renpy.config.missing_scene:
-        renpy.config.missing_scene(layer)
-
-    # End a transition that's affecting layer.
-    renpy.display.interface.ongoing_transition.pop(layer, None)
-
-    for i in renpy.config.scene_callbacks:
-        i(layer)
-
+def scene(layer: str = "master") -> None: ...
 def web_input(prompt, default="", allow=None, exclude="{}", length=None, mask=False):
     """
     :undocumented:
@@ -2857,7 +2684,7 @@ def push_error_handler(eh):
 def pop_error_handler():
     _error_handlers.pop()
 
-def error(msg: str) -> NoReturn: ...
+def error(msg: str) -> None: ...
 def timeout(seconds):
     """
     :doc: udd_utility

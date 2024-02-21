@@ -26,7 +26,7 @@ from __future__ import (
     print_function,
     unicode_literals,
 )
-from typing import Optional  # type: ignore
+from typing import NoReturn, Optional  # type: ignore
 from renpy.compat import (
     PY2,
     basestring,
@@ -825,17 +825,7 @@ class Lexer(object):
         except ParseError as e:
             renpy.parser.parse_errors.append(e.message)
 
-    def error(self, msg):
-        """
-        Convenience function for reporting a parse error at the current
-        location.
-        """
-
-        if (self.line == -1) and self.block:
-            self.filename, self.number, self.text, self.subblock = self.block[0]
-
-        raise ParseError(self.filename, self.number, msg, self.text, self.pos)
-
+    def error(self, msg: str) -> NoReturn: ...
     def deferred_error(self, queue, msg):
         """
         Adds a deferred error to the given queue. This is used for something
@@ -1144,26 +1134,7 @@ class Lexer(object):
         """
         return self.label_name(declare=True)
 
-    def image_name_component(self):
-        """
-        Matches a word that is a component of an image name. (These are
-        strings of numbers, letters, and underscores.)
-        """
-
-        oldpos = self.pos
-        rv = self.match(image_word_regexp)
-
-        if (rv == "r") or (rv == "u"):
-            if self.text[self.pos : self.pos + 1] in ('"', "'", "`"):
-                self.pos = oldpos
-                return None
-
-        if rv in KEYWORDS:
-            self.pos = oldpos
-            return None
-
-        return rv
-
+    def image_name_component(self) -> Optional[str]: ...
     def python_string(self):
         """
         This tries to match a python string at the current
