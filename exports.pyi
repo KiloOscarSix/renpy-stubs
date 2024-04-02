@@ -3078,11 +3078,6 @@ def is_pixel_opaque(d, width, height, st, at, x, y):
         render(renpy.easy.displayable(d), width, height, st, at).is_pixel_opaque(x, y)
     )
 
-class Displayable(
-    renpy.display.displayable.Displayable, renpy.revertable.RevertableObject
-):
-    pass
-
 class Container(renpy.display.layout.Container, renpy.revertable.RevertableObject):
     _list_type = renpy.revertable.RevertableList
 
