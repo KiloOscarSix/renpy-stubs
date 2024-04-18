@@ -2381,15 +2381,7 @@ def context_dynamic(*variables):
 
     renpy.game.context().make_dynamic(variables, context=True)
 
-def seen_label(label):
-    """
-    :doc: label
-
-    Returns true if the named label has executed at least once on the current user's
-    system, and false otherwise. This can be used to unlock scene galleries, for
-    example.
-    """
-    return label in renpy.game.persistent._seen_ever  # type: ignore
+def seen_label(label: str) -> bool: ...
 
 def mark_label_seen(label):
     """
