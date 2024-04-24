@@ -2192,24 +2192,7 @@ def exists(filename):
     except Exception:
         return False
 
-def restart_interaction():
-    """
-    :doc: other
-
-    Restarts the current interaction. Among other things, this displays
-    images added to the scene, re-evaluates screens, and starts any
-    queued transitions.
-
-    This only does anything when called from within an interaction (for
-    example, from an action). Outside an interaction, this function has
-    no effect.
-    """
-
-    try:
-        renpy.game.interface.restart_interaction = True
-    except Exception:
-        pass
-
+def restart_interaction() -> None: ...
 def context() -> renpy.revertable.RevertableObject: ...
 def context_nesting_level():
     """
@@ -2382,7 +2365,6 @@ def context_dynamic(*variables):
     renpy.game.context().make_dynamic(variables, context=True)
 
 def seen_label(label: str) -> bool: ...
-
 def mark_label_seen(label):
     """
     :doc: label
