@@ -1432,6 +1432,9 @@ layer_transforms = {}
 # Should steam be enabled?
 enable_steam: bool
 
+# Callbacks to run after load.
+after_load_callbacks: list[Callable[[], None]]
+
 del os
 del collections
 
