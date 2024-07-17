@@ -3312,25 +3312,7 @@ def get_mode():
 
     return modes[0]
 
-def notify(message):
-    """
-    :doc: other
-
-    Causes Ren'Py to display the `message` using the notify screen. By
-    default, this will cause the message to be dissolved in, displayed
-    for two seconds, and dissolved out again.
-
-    This is useful for actions that otherwise wouldn't produce feedback,
-    like screenshots or quicksaves.
-
-    Only one notification is displayed at a time. If a second notification
-    is displayed, the first notification is replaced.
-
-    This function just calls :var:`config.notify`, allowing its implementation
-    to be replaced by assigning a new function to that variable.
-    """
-
-    renpy.config.notify(message)
+def notify(message: object) -> None: ...
 
 def display_notify(message):
     """
