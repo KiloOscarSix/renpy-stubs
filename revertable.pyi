@@ -634,7 +634,7 @@ class DetRandom(random.Random):
         choices = list_wrapper(random.Random.choices)
     sample = list_wrapper(random.Random.sample)
 
-    def random(self):
+    def random(self) -> float:
 
         if self.stack:
             rv = self.stack.pop()

@@ -1987,7 +1987,7 @@ def jump_out_of_context(label):
 
     raise renpy.game.JumpOutException(label)
 
-def call(label, *args, **kwargs):
+def call(label: str, *args: Any, **kwargs: Any) -> Any:
     """
     :doc: se_call
     :args: (label, *args, from_current=False, **kwargs)
