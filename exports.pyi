@@ -765,19 +765,19 @@ def web_input(prompt, default="", allow=None, exclude="{}", length=None, mask=Fa
     return rv
 
 def input(
-    prompt,
-    default="",
-    allow=None,
-    exclude="{}",
-    length=None,
-    with_none=None,
-    pixel_width=None,
-    screen="input",
-    mask=None,
-    copypaste=True,
-    multiline=False,
-    **kwargs,
-):  # @ReservedAssignment
+    prompt: str,
+    default: str = "",
+    allow: Optional[str] = None,
+    exclude: Optional[str] = "{}",
+    length: Optional[int] = None,
+    with_none: Optional[bool] = None,
+    pixel_width: Optional[int] = None,
+    screen: str = "input",
+    mask: Optional[str] = None,
+    copypaste: bool = True,
+    multiline: bool = False,
+    **kwargs: Any,
+) -> str:  # @ReservedAssignment
     """
     :doc: input
 
@@ -956,11 +956,9 @@ def menu(items, set_expr, args=None, kwargs=None, item_arguments=None):
         args, kwargs = renpy.config.menu_arguments_callback(*args, **kwargs)
 
     if renpy.config.old_substitutions:
-
         def substitute(s):
             return s % tag_quoting_dict
     else:
-
         def substitute(s):
             return s
     if item_arguments is None:
@@ -3313,7 +3311,6 @@ def get_mode():
     return modes[0]
 
 def notify(message: object) -> None: ...
-
 def display_notify(message):
     """
     :doc: other
